@@ -96,7 +96,7 @@ class LoadData:
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
-                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
                     detail = profile[profile['userid'] == dir_item[:-4]]
                     self.faces.append(image)
                     self.genders.append(int(detail['gender']))
@@ -114,7 +114,7 @@ class LoadData:
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
-                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
                     image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
                     self.faces.append(image)
                     if os.path.basename(full_path).split('_')[1] == '1':
@@ -135,7 +135,7 @@ class LoadData:
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
-                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
                     image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
                     self.faces.append(image)
                     if os.path.basename(os.path.dirname(full_path)) == 'female':

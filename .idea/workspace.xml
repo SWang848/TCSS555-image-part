@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f156873b-b0aa-45e0-a20b-c8a6170b7d44" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gender_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/gender_train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/load_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/load_dataset.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -59,11 +57,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/gender_train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="281">
-              <caret line="83" column="28" lean-forward="true" selection-start-line="83" selection-start-column="28" selection-end-line="83" selection-end-column="28" />
+            <state relative-caret-position="4085">
+              <caret line="215" lean-forward="true" selection-start-line="215" selection-end-line="215" />
               <folding>
                 <element signature="e#1#34#0" expanded="true" />
               </folding>
@@ -71,11 +69,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/load_dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2204">
-              <caret line="116" column="90" selection-start-line="116" selection-start-column="90" selection-end-line="116" selection-end-column="90" />
+            <state relative-caret-position="226">
+              <caret line="191" column="84" lean-forward="true" selection-start-line="191" selection-start-column="84" selection-end-line="191" selection-end-column="84" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -131,8 +129,8 @@
         <option value="$PROJECT_DIR$/gender_predict.py" />
         <option value="$PROJECT_DIR$/preprocess.py" />
         <option value="$PROJECT_DIR$/test_predict.py" />
-        <option value="$PROJECT_DIR$/load_dataset.py" />
         <option value="$PROJECT_DIR$/gender_train.py" />
+        <option value="$PROJECT_DIR$/load_dataset.py" />
       </list>
     </option>
   </component>
@@ -178,7 +176,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test_predict">
+  <component name="RunManager" selected="Python.gender_train">
     <configuration name="gender_predict" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="FB_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -286,9 +284,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test_predict" />
-        <item itemvalue="Python.test_predict" />
         <item itemvalue="Python.gender_train" />
+        <item itemvalue="Python.test_predict" />
+        <item itemvalue="Python.test_predict" />
         <item itemvalue="Python.preprocess" />
         <item itemvalue="Python.gender_predict" />
       </list>
@@ -320,12 +318,12 @@
     <frame x="-7" y="-7" width="1633" height="1053" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12382739" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12382739" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32900432" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.34848484" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.34777898" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -333,7 +331,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.4987245" weight="0.32792208" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.502551" side_tool="true" weight="0.40393013" />
-      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49744898" visible="true" weight="0.22643554" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49744898" weight="0.22643554" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -509,22 +507,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/load_dataset.py">
+    <entry file="file://$PROJECT_DIR$/gender_train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2204">
-          <caret line="116" column="90" selection-start-line="116" selection-start-column="90" selection-end-line="116" selection-end-column="90" />
+        <state relative-caret-position="4085">
+          <caret line="215" lean-forward="true" selection-start-line="215" selection-end-line="215" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#1#34#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gender_train.py">
+    <entry file="file://$PROJECT_DIR$/load_dataset.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="281">
-          <caret line="83" column="28" lean-forward="true" selection-start-line="83" selection-start-column="28" selection-end-line="83" selection-end-column="28" />
+        <state relative-caret-position="226">
+          <caret line="191" column="84" lean-forward="true" selection-start-line="191" selection-start-column="84" selection-end-line="191" selection-end-column="84" />
           <folding>
-            <element signature="e#1#34#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
