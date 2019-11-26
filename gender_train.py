@@ -1,15 +1,14 @@
-import keras.backend as K
 from preprocess import Preprocess
 from load_dataset import LoadData
 from sklearn.model_selection import train_test_split
+import keras.backend as K
 from keras.utils import np_utils
 from keras.models import Sequential, load_model
 from keras.optimizers import SGD, Adadelta
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import MaxPooling2D, Conv2D
-from keras.callbacks import ModelCheckpoint
-from keras.callbacks import LearningRateScheduler, ReduceLROnPlateau
+from keras.callbacks import LearningRateScheduler, ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -32,21 +31,29 @@ class Dataset:
 
         self.datasets = LoadData()
 
-    def load(self):
-        faces, genders = self.datasets.load_fbDataset()
-        # faces, genders = self.datasets.load_extra_dataset()
-        # faces, genders = self.datasets.load_extra_UTKdataset()
-        # faces, genders = self.datasets.load_extra_wikiDataset()
+    def load(self, grey):
+        faces, genders = self.datasets.load_fbDataset(grey=grey)
+        faces, genders = self.datasets.load_extra_dataset(grey=grey)
+        faces, genders = self.datasets.load_extra_UTKdataset(grey=grey)
+        faces, genders = self.datasets.load_extra_wikiDataset(grey=grey)
         faces = np.array(faces)
         genders = np.array(genders)
 
         train_images, valid_images, train_labels, valid_labels = train_test_split(faces, genders, test_size=0.2, random_state=0)
         # train_images, valid_images, train_labels, valid_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=0)
 
-        train_images = train_images.reshape(train_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
-        valid_images = valid_images.reshape(valid_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
-        # test_images = test_images.reshape(test_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
-        self.input_shape=(self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
+        if grey == 1:
+            train_images = train_images.reshape(train_images.shape[0], self.datasets.IMAGE_SIZE,
+                                                self.datasets.IMAGE_SIZE, 1)
+            valid_images = valid_images.reshape(valid_images.shape[0], self.datasets.IMAGE_SIZE,
+                                                self.datasets.IMAGE_SIZE, 1)
+            # test_images = test_images.reshape(test_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
+            self.input_shape = (self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 1)
+        else:
+            train_images = train_images.reshape(train_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
+            valid_images = valid_images.reshape(valid_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
+            # test_images = test_images.reshape(test_images.shape[0], self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
+            self.input_shape=(self.datasets.IMAGE_SIZE, self.datasets.IMAGE_SIZE, 3)
 
         print(train_images.shape[0], "train samples")
         print(valid_images.shape[0], 'valid samples')
@@ -72,15 +79,19 @@ class Dataset:
         # self.test_labels = test_labels
 
 class Model:
-    def __init__(self):
+    def __init__(self, grey):
         self.model = None
         self.hist_fit = None
+        self.grey = grey
 
     def build_model(self, dataset):
         self.model = Sequential()
 
-        self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3), padding='same'))
-        self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3), padding='same'))
+        if self.grey == 1:
+            self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 1), padding='same'))
+        else:
+            self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3), padding='same'))
+        self.model.add(Conv2D(32, (3, 3), padding='same'))
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
         self.model.add(Conv2D(64, (3, 3), padding='same'))
@@ -90,8 +101,8 @@ class Model:
 
         self.model.add(Flatten())
         self.model.add(Dense(16))
-        self.model.add(Dropout(0.5))
         self.model.add(Activation('relu'))
+        self.model.add(Dropout(0.5))
         self.model.add(Dense(dataset.nb_classes))
         self.model.add(Activation('sigmoid'))
 
@@ -105,6 +116,7 @@ class Model:
         self.model.compile(loss='binary_crossentropy', optimizer=adadelta, metrics=['accuracy'])
 
         checkpoint = ModelCheckpoint(file_path+'model_{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', save_weights_only=True, verbose=1, save_best_only=True, period=10)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
 
         weights_path = file_path+'model_140-0.76.hdf5'
         if os.path.exists(weights_path):
@@ -134,7 +146,7 @@ class Model:
                                                 epochs=nb_epoch,
                                                 verbose=1,
                                                 validation_data=(data.valid_images, data.valid_labels),
-                                                callbacks=[checkpoint, lrate])
+                                                callbacks=[checkpoint, lrate, es])
             # hist_val = self.model.evaluate_generator(datagen.flow(data.valid_images, data.valid_labels, batch_size=batch_size),
             #                                          verbose=1,
             #                                          steps=data.test_images.shape[0]/batch_size)
@@ -158,14 +170,14 @@ class Model:
     #     lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
     #     return lrate
 
-    def save_model(self):
-        self.model.save_weights('./model/gender_model_weight.h5')
-        self.model.save('./model/gender_model.h5')
+    def save_model(self, model_path, model_weight_path):
+        self.model.save_weights(model_weight_path)
+        self.model.save(model_path)
         print("save finished")
 
-    def load_model(self):
-        self.model = load_model('./model/gender_model.h5')
-        self.model.load_weights('./model/model_170-0.76.hdf5')
+    def load_model(self, model_path, model_weight_path):
+        self.model = load_model(model_path)
+        self.model.load_weights(model_weight_path)
 
     def gender_predict(self, image):
         if image.shape != (1, 32, 32, 3):
@@ -200,12 +212,12 @@ class Model:
 
 if __name__ == '__main__':
     dataset = Dataset()
-    dataset.load()
+    dataset.load(grey=1)
 
-    model = Model()
+    model = Model(grey=1)
     model.build_model(dataset)
     model.train(dataset)
-    model.save_model()
+    model.save_model(model_path='./model/gender_model.h5', model_weight_path='./model/gender_model_weight.h5')
     model.visualize_train_history()
 
     # model = Model()

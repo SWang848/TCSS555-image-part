@@ -87,16 +87,16 @@ class LoadData:
                 face = Preprocess.resize_image(face, self.IMAGE_SIZE, self.IMAGE_SIZE)
                 cv2.imwrite('D:\\TCSS555\\project\\training\\faces\\flip_profile_1.3_3\\{0}'.format(dir_item), face)
 
-    def load_fbDataset(self, image_path='D:\\TCSS555\\project\\training\\faces'):
+    def load_fbDataset(self, image_path='D:\\TCSS555\\project\\training\\faces', grey=0):
         profile = pd.read_csv('D:\\TCSS555\\project\\training\\profile\\profile.csv')
         for dir_item in os.listdir(image_path):
             full_path = os.path.abspath(os.path.join(image_path, dir_item))
             if os.path.isdir(full_path):
-                self.load_fbDataset(full_path)
+                self.load_fbDataset(full_path, grey=grey)
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
-                    image = cv2.imread(full_path)
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
                     detail = profile[profile['userid'] == dir_item[:-4]]
                     self.faces.append(image)
                     self.genders.append(int(detail['gender']))
@@ -106,23 +106,20 @@ class LoadData:
 
         return self.faces, self.genders
 
-    def load_extra_UTKdataset(self, extra_image_path='D:\\TCSS555\\project\\training\\extra_UTK'):
+    def load_extra_UTKdataset(self, extra_image_path='D:\\TCSS555\\project\\training\\extra_UTK', grey=0):
         for dir_item in os.listdir(extra_image_path):
             full_path = os.path.abspath(os.path.join(extra_image_path, dir_item))
             if os.path.isdir(full_path):
-                self.load_extra_UTKdataset(full_path)
+                self.load_extra_UTKdataset(full_path, grey)
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
+                    image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
+                    self.faces.append(image)
                     if os.path.basename(full_path).split('_')[1] == '1':
-                        image = cv2.imread(full_path)
-                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
-                        self.faces.append(image)
                         self.genders.append(1)
                     elif os.path.basename(full_path).split('_')[1] == '0':
-                        image = cv2.imread(full_path)
-                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
-                        self.faces.append(image)
                         self.genders.append(0)
 
         print(len(self.faces), len(self.genders))
@@ -130,23 +127,20 @@ class LoadData:
         return self.faces, self.genders
 
 
-    def load_extra_dataset(self, extra_image_path="D:\\TCSS555\\project\\training\\extra"):
+    def load_extra_dataset(self, extra_image_path="D:\\TCSS555\\project\\training\\extra", grey=0):
         for dir_item in os.listdir(extra_image_path):
             full_path = os.path.abspath(os.path.join(extra_image_path, dir_item))
             if os.path.isdir(full_path):
-                self.load_extra_dataset(full_path)
+                self.load_extra_dataset(full_path, grey)
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
+                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else image = cv2.imread(full_path)
+                    image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
+                    self.faces.append(image)
                     if os.path.basename(os.path.dirname(full_path)) == 'female':
-                        image = cv2.imread(full_path)
-                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
-                        self.faces.append(image)
                         self.genders.append(1)
                     elif os.path.basename(os.path.dirname(full_path)) == 'male':
-                        image = cv2.imread(full_path)
-                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
-                        self.faces.append(image)
                         self.genders.append(0)
 
         print(len(self.faces), len(self.genders))
@@ -188,13 +182,13 @@ class LoadData:
                     pass
 
 
-    def load_extra_wikiDataset(self):
+    def load_extra_wikiDataset(self, grey=0):
         image_path = 'D:\\TCSS555\\project\\training\\wiki_faces'
         label = pd.read_csv("D:\\TCSS555\\project\\training\\wiki_crop\\wiki.csv")
         full_path = ''
         for dir_item in os.listdir(image_path):
             full_path = os.path.abspath(os.path.join(image_path, dir_item))
-            image = cv2.imread(full_path)
+            image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
             image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
             gender = label[label['filename'] == dir_item]['gender']
             if gender.empty:
