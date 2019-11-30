@@ -8,7 +8,7 @@ import numpy
 class LoadData:
 
     def __init__(self):
-        self.IMAGE_SIZE = 32
+        self.IMAGE_SIZE = 100
         self.images = []
         self.faces = []
         self.genders = []
@@ -114,14 +114,17 @@ class LoadData:
                 print(full_path)
             else:
                 if dir_item.endswith('.jpg'):
-                    image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
-                    image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
-                    self.faces.append(image)
                     if os.path.basename(full_path).split('_')[1] == '1':
+                        image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(
+                            full_path)
+                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
+                        self.faces.append(image)
                         self.genders.append(1)
                     elif os.path.basename(full_path).split('_')[1] == '0':
+                        image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
+                        image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
+                        self.faces.append(image)
                         self.genders.append(0)
-
         print(len(self.faces), len(self.genders))
 
         return self.faces, self.genders

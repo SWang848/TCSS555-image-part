@@ -33,9 +33,9 @@ class Dataset:
 
     def load(self, grey):
         faces, genders = self.datasets.load_fbDataset(grey=grey)
-        faces, genders = self.datasets.load_extra_dataset(grey=grey)
-        faces, genders = self.datasets.load_extra_UTKdataset(grey=grey)
-        faces, genders = self.datasets.load_extra_wikiDataset(grey=grey)
+        # faces, genders = self.datasets.load_extra_dataset(grey=grey)
+        # faces, genders = self.datasets.load_extra_UTKdataset(grey=grey)
+        #faces, genders = self.datasets.load_extra_wikiDataset(grey=grey)
         faces = np.array(faces)
         genders = np.array(genders)
 
@@ -88,9 +88,9 @@ class Model:
         self.model = Sequential()
 
         if self.grey == 1:
-            self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 1), padding='same'))
+            self.model.add(Conv2D(32, (3, 3), input_shape=(100, 100, 1), padding='same'))
         else:
-            self.model.add(Conv2D(32, (3, 3), input_shape=(32, 32, 3), padding='same'))
+            self.model.add(Conv2D(32, (3, 3), input_shape=(100, 100, 3), padding='same'))
         self.model.add(Conv2D(32, (3, 3), padding='same'))
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -98,11 +98,16 @@ class Model:
         self.model.add(Conv2D(64, (3, 3), padding='same'))
         self.model.add(Activation('relu'))
         self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Conv2D(128, (3, 3), padding='same'))
+        self.model.add(Conv2D(128, (3, 3), padding='same'))
+        self.model.add(Activation('relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
 
         self.model.add(Flatten())
+        self.model.add(Dropout(0.25))
         self.model.add(Dense(16))
         self.model.add(Activation('relu'))
-        self.model.add(Dropout(0.5))
+        self.model.add(Dropout(0.25))
         self.model.add(Dense(dataset.nb_classes))
         self.model.add(Activation('sigmoid'))
 
@@ -114,9 +119,8 @@ class Model:
         # lrate = LearningRateScheduler(self.scheduler)
         lrate = ReduceLROnPlateau(monitor='val_loss', patience=10, mode='auto', factor=0.2, min_lr=0.001)
         self.model.compile(loss='binary_crossentropy', optimizer=adadelta, metrics=['accuracy'])
-
-        checkpoint = ModelCheckpoint(file_path+'model_{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', save_weights_only=True, verbose=1, save_best_only=True, period=10)
-        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+        checkpoint = ModelCheckpoint(file_path+'model_{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', save_weights_only=True, verbose=1, save_best_only=True, period=5)
+        es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=35)
 
         weights_path = file_path+'model_140-0.76.hdf5'
         if os.path.exists(weights_path):
@@ -212,9 +216,9 @@ class Model:
 
 if __name__ == '__main__':
     dataset = Dataset()
-    dataset.load(grey=1)
+    dataset.load(grey=0)
 
-    model = Model(grey=1)
+    model = Model(grey=0)
     model.build_model(dataset)
     model.train(dataset)
     model.save_model(model_path='./model/gender_model.h5', model_weight_path='./model/gender_model_weight.h5')

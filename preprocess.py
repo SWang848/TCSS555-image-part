@@ -10,7 +10,8 @@ class Preprocess():
     @staticmethod
     def resize_image(image, height, width):
         top, bottom, left, right = (0, 0, 0, 0)
-        h, w, _ = image.shape
+        h = image.shape[0]
+        w = image.shape[1]
         longest_edge = max(h, w)
 
         if h < longest_edge:
@@ -39,7 +40,7 @@ class Preprocess():
     @staticmethod
     def crop_faces(image, scaleFactor=1.3, minNeighbors=3):
         classifier = cv2.CascadeClassifier(
-            "D:\\opencv\\opencv\\build\\etc\\haarcascades\\haarcascade_frontalface_alt2.xml")
+            "D:\\opencv\\opencv\\build\\etc\\haarcascades\\haarcascade_frontalface_alt.xml")
         grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faceRects = classifier.detectMultiScale(grey, scaleFactor=scaleFactor, minNeighbors=minNeighbors)
         maxFace = 0
