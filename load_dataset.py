@@ -102,9 +102,9 @@ class LoadData:
                     self.genders.append(int(detail['gender']))
                     self.ages.append(Preprocess.switch_age(int(detail['age'])))
 
-        print(len(self.faces), len(self.genders))
+        print(len(self.faces), len(self.genders), len(self.ages))
 
-        return self.faces, self.genders
+        return self.faces, self.genders, self.ages
 
     def load_extra_UTKdataset(self, extra_image_path='D:\\TCSS555\\project\\training\\extra_UTK', grey=0):
         for dir_item in os.listdir(extra_image_path):
@@ -120,14 +120,16 @@ class LoadData:
                         image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
                         self.faces.append(image)
                         self.genders.append(1)
+                        self.ages.append(Preprocess.switch_age(int(os.path.basename(full_path).split('_')[0])))
                     elif os.path.basename(full_path).split('_')[1] == '0':
                         image = cv2.cvtColor(cv2.imread(full_path), cv2.COLOR_RGB2GRAY) if grey == 1 else cv2.imread(full_path)
                         image = Preprocess.resize_image(image, self.IMAGE_SIZE, self.IMAGE_SIZE)
                         self.faces.append(image)
                         self.genders.append(0)
-        print(len(self.faces), len(self.genders))
+                        self.ages.append(Preprocess.switch_age(int(os.path.basename(full_path).split('_')[0])))
+        print(len(self.faces), len(self.genders), len(self.ages))
 
-        return self.faces, self.genders
+        return self.faces, self.genders, self.ages
 
 
     def load_extra_dataset(self, extra_image_path="D:\\TCSS555\\project\\training\\extra", grey=0):

@@ -15,7 +15,7 @@ import os
 import math
 
 class Dataset:
-    def __init__(self, nb_classes=2):
+    def __init__(self, nb_classes=4):
         self.train_images = None
         self.train_labels = None
 
@@ -32,14 +32,13 @@ class Dataset:
         self.datasets = LoadData()
 
     def load(self, grey):
-        faces, genders = self.datasets.load_fbDataset(grey=grey)
-        # faces, genders = self.datasets.load_extra_dataset(grey=grey)
-        # faces, genders = self.datasets.load_extra_UTKdataset(grey=grey)
+        faces, _, ages = self.datasets.load_fbDataset(grey=grey)
+        #faces, _, ages = self.datasets.load_extra_UTKdataset(grey=grey)
         #faces, genders = self.datasets.load_extra_wikiDataset(grey=grey)
         faces = np.array(faces)
-        genders = np.array(genders)
+        ages = np.array(ages)
 
-        train_images, valid_images, train_labels, valid_labels = train_test_split(faces, genders, test_size=0.2, random_state=0)
+        train_images, valid_images, train_labels, valid_labels = train_test_split(faces, ages, test_size=0.2, random_state=0)
         # train_images, valid_images, train_labels, valid_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=0)
 
         if grey == 1:
@@ -62,6 +61,7 @@ class Dataset:
         valid_labels = np_utils.to_categorical(valid_labels)
         # test_labels = np_utils.to_categorical(test_labels)
         self.nb_classes = train_labels.shape[1]
+        print(self.nb_classes)
 
         train_images = train_images.astype('float32')
         valid_images = valid_images.astype('float32')
@@ -109,7 +109,7 @@ class Model:
         self.model.add(Activation('relu'))
         self.model.add(Dropout(0.25))
         self.model.add(Dense(dataset.nb_classes))
-        self.model.add(Activation('sigmoid'))
+        self.model.add(Activation('relu'))
 
         self.model.summary()
 
@@ -118,8 +118,8 @@ class Model:
         adadelta = Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
         # lrate = LearningRateScheduler(self.scheduler)
         lrate = ReduceLROnPlateau(monitor='val_loss', patience=10, mode='auto', factor=0.2, min_lr=0.001)
-        self.model.compile(loss='binary_crossentropy', optimizer=adadelta, metrics=['accuracy'])
-        checkpoint = ModelCheckpoint(file_path+'model_{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', save_weights_only=True, verbose=1, save_best_only=True, period=5)
+        self.model.compile(loss='categorical_crossentropy', optimizer=adadelta, metrics=['accuracy'])
+        checkpoint = ModelCheckpoint(file_path+'age_model_{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', save_weights_only=True, verbose=1, save_best_only=True, period=5)
         es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=35)
 
         weights_path = file_path+'model_140-0.76.hdf5'
@@ -138,11 +138,9 @@ class Model:
             datagen = ImageDataGenerator(
                 featurewise_center=True,
                 featurewise_std_normalization=True,
-                rotation_range=40,
+                rotation_range=20,
                 width_shift_range=0.2,
                 height_shift_range=0.2,
-                shear_range=0.2,
-                zoom_range=0.2,
                 horizontal_flip=True,
             )
             datagen.fit(data.train_images)
@@ -157,7 +155,7 @@ class Model:
             #                                          verbose=1,
             #                                          steps=data.test_images.shape[0]/batch_size)
 
-            with(open('./gender_model_fit_log.txt', 'w+')) as f:
+            with(open('./age_model_fit_log.txt', 'w+')) as f:
                 f.write(str(self.hist_fit.history))
 
             # with(open('./gender_model_val_log.txt', 'w+')) as f:
@@ -185,7 +183,7 @@ class Model:
         self.model = load_model(model_path)
         self.model.load_weights(model_weight_path)
 
-    def gender_predict(self, image):
+    def age_predict(self, image):
         if image.shape != (1, 100, 100, 3):
             image = Preprocess.resize_image(image, 100, 100)
             image = image.reshape((1, 100, 100, 3))
@@ -194,9 +192,9 @@ class Model:
         print('result:', result[0])
 
         result = self.model.predict_classes(image)
-        gender = result[0]
+        age = result[0]
 
-        return gender
+        return age
 
     def visualize_train_history(self):
         print(self.hist_fit.history.keys())
@@ -223,7 +221,7 @@ if __name__ == '__main__':
     model = Model(grey=0)
     model.build_model(dataset)
     model.train(dataset)
-    model.save_model(model_path='./model/gender_model.h5', model_weight_path='./model/gender_model_weight.h5')
+    model.save_model(model_path='./model/age_model.h5', model_weight_path='./model/age_model_weight.h5')
     model.visualize_train_history()
 
     # model = Model()

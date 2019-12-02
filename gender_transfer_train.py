@@ -1,13 +1,15 @@
+from tensorflow import keras
+
 from preprocess import Preprocess
 from load_dataset import LoadData
 from sklearn.model_selection import train_test_split
 import keras.backend as K
 from keras.utils import np_utils
-from keras.models import Sequential, load_model
-from keras.optimizers import SGD, Adadelta
+from keras.models import load_model, Model
+from keras.optimizers import Adadelta
 from keras.preprocessing.image import ImageDataGenerator
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import MaxPooling2D, Conv2D
+from keras.applications.resnet50 import ResNet50
+from keras.layers import Dense, Flatten, Input
 from keras.callbacks import LearningRateScheduler, ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
 import numpy as np
 import matplotlib.pyplot as plt
@@ -78,43 +80,37 @@ class Dataset:
         self.valid_labels = valid_labels
         # self.test_labels = test_labels
 
-class Model:
-    def __init__(self, grey=0):
+class _Model:
+    def __init__(self, grey):
         self.model = None
         self.hist_fit = None
         self.grey = grey
 
-    def build_model(self, dataset):
-        self.model = Sequential()
+    def ResNet50_model(self, dataset):
+
 
         if self.grey == 1:
-            self.model.add(Conv2D(32, (3, 3), input_shape=(100, 100, 1), padding='same'))
+            Inp = Input((100, 100, 1))
+            base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(100, 100, 1),
+                                  classes=dataset.nb_classes)
         else:
-            self.model.add(Conv2D(32, (3, 3), input_shape=(100, 100, 3), padding='same'))
-        self.model.add(Conv2D(32, (3, 3), padding='same'))
-        self.model.add(Activation('relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Conv2D(64, (3, 3), padding='same'))
-        self.model.add(Conv2D(64, (3, 3), padding='same'))
-        self.model.add(Activation('relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
-        self.model.add(Conv2D(128, (3, 3), padding='same'))
-        self.model.add(Conv2D(128, (3, 3), padding='same'))
-        self.model.add(Activation('relu'))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+            Inp = Input((100, 100, 3))
+            base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(100, 100, 3),
+                                  classes=dataset.nb_classes)
 
-        self.model.add(Flatten())
-        self.model.add(Dropout(0.25))
-        self.model.add(Dense(16))
-        self.model.add(Activation('relu'))
-        self.model.add(Dropout(0.25))
-        self.model.add(Dense(dataset.nb_classes))
-        self.model.add(Activation('sigmoid'))
+        for layer in base_model.layers:
+            layer.trainable = False
+
+        x = base_model(Inp)
+        x = Flatten()(x)
+        predictions = Dense(dataset.nb_classes, activation='sigmoid')(x)
+        self.model = Model(inputs=Inp, outputs=predictions)
 
         self.model.summary()
 
+        return model
+
     def train(self, data, batch_size=128, nb_epoch=200, data_augmentation=True, file_path='./model/'):
-        # sgd = SGD(lr=0.01, decay=0.01/nb_epoch, momentum=0.9, nesterov=True)
         adadelta = Adadelta(lr=1.0, rho=0.95, epsilon=None, decay=0.0)
         # lrate = LearningRateScheduler(self.scheduler)
         lrate = ReduceLROnPlateau(monitor='val_loss', patience=10, mode='auto', factor=0.2, min_lr=0.001)
@@ -138,11 +134,9 @@ class Model:
             datagen = ImageDataGenerator(
                 featurewise_center=True,
                 featurewise_std_normalization=True,
-                rotation_range=40,
+                rotation_range=20,
                 width_shift_range=0.2,
                 height_shift_range=0.2,
-                shear_range=0.2,
-                zoom_range=0.2,
                 horizontal_flip=True,
             )
             datagen.fit(data.train_images)
@@ -186,9 +180,9 @@ class Model:
         self.model.load_weights(model_weight_path)
 
     def gender_predict(self, image):
-        if image.shape != (1, 100, 100, 3):
-            image = Preprocess.resize_image(image, 100, 100)
-            image = image.reshape((1, 100, 100, 3))
+        if image.shape != (1, 32, 32, 3):
+            image = Preprocess.resize_image(image, 32, 32)
+            image = image.reshape((1, 32, 32, 3))
 
         result = self.model.predict(image)
         print('result:', result[0])
@@ -220,11 +214,10 @@ if __name__ == '__main__':
     dataset = Dataset()
     dataset.load(grey=0)
 
-    model = Model(grey=0)
-    model.build_model(dataset)
+    model = _Model(grey=0)
+    model.ResNet50_model(dataset)
     model.train(dataset)
     model.save_model(model_path='./model/gender_model.h5', model_weight_path='./model/gender_model_weight.h5')
     model.visualize_train_history()
 
     # model = Model()
-    # model.model_analysis('./gender_model_fit_log.txt')
